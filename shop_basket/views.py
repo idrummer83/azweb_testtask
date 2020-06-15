@@ -1,9 +1,12 @@
 from django.shortcuts import render, redirect
-from django.views.generic import TemplateView
+from django.views.generic import TemplateView, FormView
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib import messages
 
 from .models import Basket
+
+from .forms import BasketForm
 
 # Create your views here.
 
@@ -12,29 +15,32 @@ class Index(TemplateView):
     template_name = 'index.html'
 
 
-@login_required(login_url='/accounts/login/')
-def basket_page(request):
-    return render(request, 'basket_page.html', {})
+class BasketPage(LoginRequiredMixin, TemplateView):
+    template_name = 'basket_page.html'
 
 
-def add_stuff_to_basket(request, pk):
-    price = request.POST['price']
-    title = request.POST['title']
+class BasketView(LoginRequiredMixin, FormView):
+    template_name = 'basket_page.html'
+    form_class = BasketForm
 
-    if len(title) <= 1:
-        messages.error(request, 'title too short')
-        return redirect('/basket_page/')
-
-    if price == '' or int(price) < 0 or int(price) == 0:
-        messages.error(request, 'price incorect')
-        return redirect('/basket_page/')
-
-    if request.method == 'POST':
-        Basket.objects.create(user_id=pk, price=price, title=title).save()
-
-        return redirect('/statistic_page/{}'.format(request.user.id))
-    else:
+    def get(self, request, pk):
         return render(request, 'basket_page.html', {})
+
+    def post(self, request, pk):
+        form = BasketForm(request.POST or None)
+        if form.is_valid():
+            price = form.cleaned_data['price']
+            title = form.cleaned_data['title']
+            if len(title) <= 1:
+                messages.error(request, 'title too short')
+                return redirect('/basket_page/')
+
+            if price == '' or int(price) < 0 or int(price) == 0:
+                messages.error(request, 'price incorect')
+                return redirect('/basket_page/')
+
+            Basket.objects.create(user_id=pk, price=price, title=title).save()
+            return redirect('/statistic_page/{}'.format(request.user.id))
 
 
 @login_required(login_url='/accounts/login/')
