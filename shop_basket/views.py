@@ -18,13 +18,14 @@ class Index(TemplateView):
 class BasketPage(LoginRequiredMixin, TemplateView):
     template_name = 'basket_page.html'
 
+    def get(self, request):
+        form = BasketForm()
+        return render(request, 'basket_page.html', {'form': form})
+
 
 class BasketView(LoginRequiredMixin, FormView):
     template_name = 'basket_page.html'
     form_class = BasketForm
-
-    def get(self, request, pk):
-        return render(request, 'basket_page.html', {})
 
     def post(self, request, pk):
         form = BasketForm(request.POST or None)
@@ -49,7 +50,7 @@ def statistic_page(request, pk):
     all_user_stuff = Basket.objects.filter(user_id=pk)
     max_user_price = max([i.price for i in all_user_stuff])
     full_user_price = sum([i.price for i in all_user_stuff])
-    middle_user_price = sum([i.price for i in all_user_stuff])/all_user_stuff.__len__()
+    middle_user_price = sum([i.price for i in all_user_stuff])/all_user_stuff.count()
 
     condition = sum([i.price for i in all_user_stuff if len(i.title) > 3])
     condition1 = sum([i.price for i in all_stuff if i.price > 50])
@@ -60,7 +61,7 @@ def statistic_page(request, pk):
         cond = condition1
 
     cxt = {
-        'all_stuff': all_stuff.__len__(),
+        'all_stuff': all_stuff.count(),
         'all_user_stuff': all_user_stuff,
         'all_user_stuff_num': len(all_user_stuff),
         'max_user_price': max_user_price,
