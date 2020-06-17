@@ -3,7 +3,9 @@ from django.views.generic import TemplateView, FormView
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib import messages
-
+from django.db.models import Max, Avg, Sum, Q, F, CharField
+from django.db.models.functions import Length
+CharField.register_lookup(Length)
 from .models import Basket
 
 from .forms import BasketForm
@@ -48,26 +50,19 @@ class BasketView(LoginRequiredMixin, FormView):
 def statistic_page(request, pk):
     all_stuff = Basket.objects.all()
     all_user_stuff = Basket.objects.filter(user_id=pk)
-    max_user_price = max([i.price for i in all_user_stuff])
-    full_user_price = sum([i.price for i in all_user_stuff])
-    middle_user_price = sum([i.price for i in all_user_stuff])/all_user_stuff.count()
+    max_user_price = all_user_stuff.aggregate(Max('price'))
+    full_user_price = all_user_stuff.aggregate(all_sum=Sum('price'))
+    middle_user_price = all_user_stuff.aggregate(Avg('price'))
 
-    condition = sum([i.price for i in all_user_stuff if len(i.title) > 3])
-    condition1 = sum([i.price for i in all_stuff if i.price > 50])
-
-    if condition > 0:
-        cond = condition
-    else:
-        cond = condition1
-
+    condition = Basket.objects.filter((Q(user_id=pk) & Q(title__length__gte=3)) | Q(price__gte=50)).aggregate(all_sum=Sum('price'))
     cxt = {
         'all_stuff': all_stuff.count(),
         'all_user_stuff': all_user_stuff,
-        'all_user_stuff_num': len(all_user_stuff),
-        'max_user_price': max_user_price,
-        'middle_user_price': round(middle_user_price, 2),
-        'full_user_price': full_user_price,
-        'cond': cond,
+        'all_user_stuff_num': all_user_stuff.count(),
+        'max_user_price': max_user_price['price__max'],
+        'middle_user_price': round(middle_user_price['price__avg'], 2),
+        'full_user_price': full_user_price['all_sum'],
+        'cond': condition['all_sum'],
     }
     return render(request, 'statistic_page.html', cxt)
 
@@ -75,6 +70,5 @@ def statistic_page(request, pk):
 def add_to_price(request, pk):
     all_user_stuff = Basket.objects.filter(user_id=pk)
     for i in all_user_stuff:
-        i.price += 1
-        Basket.objects.filter(id=i.id).update(price=i.price)
+        Basket.objects.filter(id=i.id).update(price=F('price') + 1)
     return redirect('/statistic_page/{}'.format(request.user.id))
