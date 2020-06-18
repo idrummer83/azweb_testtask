@@ -54,7 +54,13 @@ def statistic_page(request, pk):
     full_user_price = all_user_stuff.aggregate(all_sum=Sum('price'))
     middle_user_price = all_user_stuff.aggregate(Avg('price'))
 
-    condition = Basket.objects.filter((Q(user_id=pk) & Q(title__length__gte=3)) | Q(price__gte=50)).aggregate(all_sum=Sum('price'))
+    condition = Basket.objects.filter(Q(user_id=pk) & Q(title__length__gte=3)).aggregate(all_sum=Sum('price'))
+    condition1 = Basket.objects.filter(Q(price__gte=50)).aggregate(all_sum=Sum('price'))
+
+    if condition:
+        cond = condition['all_sum'] + full_user_price['all_sum']
+    else:
+        cond = condition1
     cxt = {
         'all_stuff': all_stuff.count(),
         'all_user_stuff': all_user_stuff,
@@ -62,7 +68,7 @@ def statistic_page(request, pk):
         'max_user_price': max_user_price['price__max'],
         'middle_user_price': round(middle_user_price['price__avg'], 2),
         'full_user_price': full_user_price['all_sum'],
-        'cond': condition['all_sum'],
+        'cond': cond,
     }
     return render(request, 'statistic_page.html', cxt)
 
