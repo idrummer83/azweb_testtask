@@ -44,4 +44,4 @@ python manage.py runserver or .manage.py runserver
 
 ## Authors
 
-* **Yuriy Liashenko** - [idrummer83](https://github.com/idrummer83)
+* **Yuriy Lyashenko** - [idrummer83](https://github.com/idrummer83)
