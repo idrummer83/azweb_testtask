@@ -1,32 +1,47 @@
-# azweb_testtask
-Python 3.6+; Django 3; Tests -- create simple buyer's basket
+# Project - User's order basket
 
-Стандартный логин
-Пользователь должен иметь возможность залогиниться. Никаких требований к логину нет, использование готового решения от Джанго допустимо.
-Регистрация не нужна, предполагается, что все пользователи создаются через админку или shell
-Данная страница не нуждается в тестировании.
+Simple release of user's order basket. Link to technical task - https://docs.google.com/document/d/1KMF6WM8dLvpvt8JFBUXqd8ydpmKLUCka3YQhgjiynMM/edit
 
-“Корзина”
-Доступна только залогиненному пользователю.
+## Getting Started
 
-Пользователь имеет возможность написать название товара, указать цену и отправить данные на сервер.
+These instructions will get you a copy of the project up and running on your local machine for development and testing purposes.
 
-Данные должны валидироваться:
-Цена позитивное число
-Название больше или равно 2 символам
+### Installing
 
-При наличии неправильных данных в форме: пользователь должен увидеть ошибки. Внешний вид роли не играет, но они должны выводиться.
-При правильном вводе данных пользователь перенаправляется на страницу “Статистика”
-Данные сохраняются в базе данных.
-“Статистика”
-Доступна только залогиненному пользователю.
+A step by step series of examples that tell you how to get a development env running
 
-- Пользователь на этой странице видит следующие данные:
-- Общее количество товаров, которые ввел пользователь
-- Общее количество товаров, которое было введено в системе
-- Максимальную цену, которую ввел пользователь
-- Среднюю цену всех продуктов всех пользователей
-- Сумму цены всех товаров, которые ввел пользователь
-- Сумму всех товаров, которые ввел пользователь И длина имени которых составляет больше 3 знаков ИЛИ цена которых больше 50, независимо от того, кто их создал
+At first clone a project
 
-Пользователь также видит здесь кнопку “Поднять цену”. При нажатии на эту кнопку, ко всем ценам всех товаров, которые создал пользователь, добавляется 1.
+```
+git clone https://github.com/idrummer83/azweb_testtask.git
+cd azweb_testtask
+```
+
+Create and activate virtual enviroment
+
+```
+source venv/bin/activate
+```
+
+### Prerequisites
+
+You need to install all packages from requirements.txt file
+
+```
+pip install -r requirements.txt
+```
+
+Start project
+
+```
+python manage.py runserver or .manage.py runserver
+```
+
+## Built With
+
+* [Python3](https://www.python.org/download/releases/3.0/)
+* [Django 3](https://maven.apache.org/) - Python framework
+
+## Authors
+
+* **Yuriy Liashenko** - [idrummer83](https://github.com/idrummer83)
