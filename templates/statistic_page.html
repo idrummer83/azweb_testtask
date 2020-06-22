@@ -8,31 +8,31 @@
 
     <h2>Statistic page</h2>
 
-    <h4>User's stuff</h4>
+    <h4>User's orders</h4>
     <span></span>
     <ul>
-        <li>number of all stuff -- {{ all_user_stuff_num }}</li>
+        <li>number of all user orders -- {{ all_user_orders_number }}</li>
         <li>max price -- {{ max_user_price }}</li>
         <li>middle price -- {{ middle_user_price }}</li>
         <li>full price sum -- {{ full_user_price }}</li>
         <li>Сумму всех товаров, которые ввел пользователь И длина имени которых составляет больше 3 знаков
-            ИЛИ цена которых больше 50, независимо от того, кто их создал -- {{ cond }}</li>
+            ИЛИ цена которых больше 50, независимо от того, кто их создал -- {{ condition }}</li>
 
         <li>
-            <a href="{% url 'add_to_price' pk=user.id %}">Поднять цену</a>
+            <a href="{% url 'raise_price' pk=user.id %}">Поднять цену</a>
         </li>
         <li><hr></li>
-        {% for all_stuff in all_user_stuff %}
-            <li>{{ all_stuff.title }} - {{ all_stuff.price }}</li>
+        {% for order in all_user_orders %}
+            <li>{{ order.title }} - {{ order.price }}</li>
         {% endfor %}
     </ul>
 
     <hr>
 
-    <h4>All stuff</h4>
+    <h4>All orders</h4>
 
     <ul>
-        <li>number of all stuff -- {{ all_stuff }}</li>
+        <li>number of all orders -- {{ all_orders }}</li>
     </ul>
 
 </body>

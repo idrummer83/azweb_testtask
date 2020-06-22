@@ -25,56 +25,57 @@ class BasketPage(LoginRequiredMixin, TemplateView):
         return render(request, 'basket_page.html', {'form': form})
 
 
-class BasketView(LoginRequiredMixin, FormView):
+class BasketView(LoginRequiredMixin, TemplateView):
     template_name = 'basket_page.html'
-    form_class = BasketForm
+    # form_class = BasketForm
+    extra_context = {}
+
+    def get(self, request, *args, **kwargs):
+        self.extra_context['form'] = BasketForm()
+
+        return super(BasketView, self).get(request)
 
     def post(self, request, pk):
         form = BasketForm(request.POST or None)
+
         if form.is_valid():
             price = form.cleaned_data['price']
             title = form.cleaned_data['title']
-            if len(title) <= 1:
-                messages.error(request, 'title too short')
-                return redirect('/basket_page/')
-
-            if price == '' or int(price) < 0 or int(price) == 0:
-                messages.error(request, 'price incorect')
-                return redirect('/basket_page/')
-
             Basket.objects.create(user_id=pk, price=price, title=title).save()
-            return redirect('/statistic_page/{}'.format(request.user.id))
+            return redirect(f'/statistic_page/{request.user.id}')
+        else:
+            messages.error(request, form.errors)
+            return redirect('/basket_page/')
 
 
 @login_required(login_url='/accounts/login/')
 def statistic_page(request, pk):
-    all_stuff = Basket.objects.all()
-    all_user_stuff = Basket.objects.filter(user_id=pk)
-    max_user_price = all_user_stuff.aggregate(Max('price'))
-    full_user_price = all_user_stuff.aggregate(all_sum=Sum('price'))
-    middle_user_price = all_user_stuff.aggregate(Avg('price'))
+    all_orders = Basket.objects.all()
+    all_user_orders = Basket.objects.filter(user_id=pk)
+    max_user_price = all_user_orders.aggregate(Max('price'))
+    full_user_price = all_user_orders.aggregate(all_sum=Sum('price'))
+    middle_user_price = all_user_orders.aggregate(Avg('price'))
 
-    condition = Basket.objects.filter(Q(user_id=pk) & Q(title__length__gte=3)).aggregate(all_sum=Sum('price'))
-    condition1 = Basket.objects.filter(Q(price__gte=50)).aggregate(all_sum=Sum('price'))
+    conditionby_user_title_sum = Basket.objects.filter(Q(user_id=pk) & Q(title__length__gte=3)).aggregate(all_sum=Sum('price'))
+    conditionby_price_greater = Basket.objects.filter(Q(price__gte=50)).aggregate(all_sum=Sum('price'))
 
-    if condition:
-        cond = condition['all_sum'] + full_user_price['all_sum']
+    if conditionby_user_title_sum:
+        condition = conditionby_user_title_sum['all_sum'] + full_user_price['all_sum']
     else:
-        cond = condition1
-    cxt = {
-        'all_stuff': all_stuff.count(),
-        'all_user_stuff': all_user_stuff,
-        'all_user_stuff_num': all_user_stuff.count(),
+        condition = conditionby_price_greater
+    context = {
+        'all_orders': all_orders.count(),
+        'all_user_orders': all_user_orders,
+        'all_user_orders_number': all_user_orders.count(),
         'max_user_price': max_user_price['price__max'],
         'middle_user_price': round(middle_user_price['price__avg'], 2),
         'full_user_price': full_user_price['all_sum'],
-        'cond': cond,
+        'condition': condition,
     }
-    return render(request, 'statistic_page.html', cxt)
+    return render(request, 'statistic_page.html', context)
 
 
-def add_to_price(request, pk):
-    all_user_stuff = Basket.objects.filter(user_id=pk)
-    for i in all_user_stuff:
+def raise_price(request, pk):
+    for i in Basket.objects.filter(user_id=pk):
         Basket.objects.filter(id=i.id).update(price=F('price') + 1)
-    return redirect('/statistic_page/{}'.format(request.user.id))
+    return redirect(f'/statistic_page/{request.user.id}')

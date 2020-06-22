@@ -8,7 +8,7 @@
 
     <h2>Basket page</h2>
 
-    <form action="{% url 'add_stuff_to_basket' pk=user.id %}" method="post">
+    <form action="{% url 'add_order_to_basket' pk=user.id %}" method="post">
         {% csrf_token %}
 
         {% for field in form %}
@@ -39,7 +39,7 @@
             </ul>
         {% endif %}
 
-        <button type="submit">Add stuff</button>
+        <button type="submit">Add order</button>
     </form>
 
 </body>

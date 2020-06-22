@@ -16,15 +16,15 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 
-from shop_basket.views import Index, BasketPage, statistic_page, add_to_price, BasketView
+from shop_basket.views import Index, BasketPage, statistic_page, raise_price, BasketView
 
 urlpatterns = [
     path('', Index.as_view(), name='index'),
     path('accounts/', include('django.contrib.auth.urls')),
 
     path('basket_page/', BasketPage.as_view(), name='basket_page'),
-    path('add_stuff_to_basket/<int:pk>', BasketView.as_view(), name='add_stuff_to_basket'),
-    path('add_to_price/<int:pk>', add_to_price, name='add_to_price'),
+    path('add_order_to_basket/<int:pk>', BasketView.as_view(), name='add_order_to_basket'),
+    path('raise_price/<int:pk>', raise_price, name='raise_price'),
 
     path('statistic_page/<int:pk>', statistic_page, name='statistic_page'),
 
