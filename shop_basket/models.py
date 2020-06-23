@@ -7,7 +7,7 @@ from django.utils.translation import gettext_lazy as _
 # Create your models here.
 
 def validate_title(value):
-    if len(value) < 2:
+    if len(value) <= 2:
         raise ValidationError(
             _('%(value)s is too short title for order'),
             params={'value': value},

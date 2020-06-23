@@ -5,7 +5,9 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib import messages
 from django.db.models import Max, Avg, Sum, Q, F, CharField
 from django.db.models.functions import Length
-CharField.register_lookup(Length)
+
+from typing import List, Dict, Any
+
 from .models import Basket
 
 from .forms import BasketForm
@@ -27,7 +29,6 @@ class BasketPage(LoginRequiredMixin, TemplateView):
 
 class BasketView(LoginRequiredMixin, TemplateView):
     template_name = 'basket_page.html'
-    # form_class = BasketForm
     extra_context = {}
 
     def get(self, request, *args, **kwargs):
@@ -35,12 +36,12 @@ class BasketView(LoginRequiredMixin, TemplateView):
 
         return super(BasketView, self).get(request)
 
-    def post(self, request, pk):
+    def post(self, request, pk: int):
         form = BasketForm(request.POST or None)
 
         if form.is_valid():
-            price = form.cleaned_data['price']
-            title = form.cleaned_data['title']
+            price: int = form.cleaned_data['price']
+            title: str = form.cleaned_data['title']
             Basket.objects.create(user_id=pk, price=price, title=title).save()
             return redirect(f'/statistic_page/{request.user.id}')
         else:
@@ -49,21 +50,23 @@ class BasketView(LoginRequiredMixin, TemplateView):
 
 
 @login_required(login_url='/accounts/login/')
-def statistic_page(request, pk):
-    all_orders = Basket.objects.all()
-    all_user_orders = Basket.objects.filter(user_id=pk)
-    max_user_price = all_user_orders.aggregate(Max('price'))
-    full_user_price = all_user_orders.aggregate(all_sum=Sum('price'))
-    middle_user_price = all_user_orders.aggregate(Avg('price'))
+def statistic_page(request, pk: int):
+    all_orders: List[object] = Basket.objects.all()
+    all_user_orders: object = Basket.objects.filter(user_id=pk)
+    max_user_price: Dict[str, int] = all_user_orders.aggregate(Max('price'))
+    full_user_price: Dict[str, int] = all_user_orders.aggregate(all_sum=Sum('price'))
+    middle_user_price: Dict[str, int] = all_user_orders.aggregate(Avg('price'))
 
-    conditionby_user_title_sum = Basket.objects.filter(Q(user_id=pk) & Q(title__length__gte=3)).aggregate(all_sum=Sum('price'))
-    conditionby_price_greater = Basket.objects.filter(Q(price__gte=50)).aggregate(all_sum=Sum('price'))
+    CharField.register_lookup(Length)
+
+    conditionby_user_title_sum: int = Basket.objects.filter(Q(user_id=pk) & Q(title__length__gte=3)).aggregate(all_sum=Sum('price'))
+    conditionby_price_greater: int = Basket.objects.filter(Q(price__gte=50)).aggregate(all_sum=Sum('price'))
 
     if conditionby_user_title_sum:
-        condition = conditionby_user_title_sum['all_sum'] + full_user_price['all_sum']
+        condition: int = conditionby_user_title_sum['all_sum'] + full_user_price['all_sum']
     else:
-        condition = conditionby_price_greater
-    context = {
+        condition: int = conditionby_price_greater
+    context: Dict[str, Any] = {
         'all_orders': all_orders.count(),
         'all_user_orders': all_user_orders,
         'all_user_orders_number': all_user_orders.count(),
@@ -75,7 +78,7 @@ def statistic_page(request, pk):
     return render(request, 'statistic_page.html', context)
 
 
-def raise_price(request, pk):
+def raise_price(request, pk: int):
     for i in Basket.objects.filter(user_id=pk):
         Basket.objects.filter(id=i.id).update(price=F('price') + 1)
     return redirect(f'/statistic_page/{request.user.id}')
