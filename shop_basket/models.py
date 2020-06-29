@@ -14,9 +14,17 @@ def validate_title(value):
         )
 
 
+def validate_price(value):
+    if value <= 1:
+        raise ValidationError(
+            _('number must be positive and more then 1'),
+            params={'value': value},
+        )
+
+
 class Basket(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='user_basket', verbose_name='user')
-    price = models.PositiveSmallIntegerField(verbose_name='price')
+    price = models.PositiveSmallIntegerField(verbose_name='price', validators=[validate_price])
     title = models.CharField(max_length=250, verbose_name='order title', validators=[validate_title])
 
     def __str__(self):

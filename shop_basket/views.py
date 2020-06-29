@@ -11,6 +11,7 @@ from typing import List, Dict, Any
 from .models import Basket
 
 from .forms import BasketForm
+from django.contrib.auth.models import User
 
 # Create your views here.
 
@@ -37,12 +38,12 @@ class BasketView(LoginRequiredMixin, TemplateView):
         return super(BasketView, self).get(request)
 
     def post(self, request, pk: int):
-        form = BasketForm(request.POST or None)
+        form = BasketForm(request.POST)
 
         if form.is_valid():
-            price: int = form.cleaned_data['price']
-            title: str = form.cleaned_data['title']
-            Basket.objects.create(user_id=pk, price=price, title=title).save()
+            user = form.save(commit=False)
+            user.user = request.user
+            user.save()
             return redirect(f'/statistic_page/{request.user.id}')
         else:
             messages.error(request, form.errors)
