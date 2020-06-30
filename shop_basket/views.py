@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect
-from django.views.generic import TemplateView, FormView
+from django.views.generic import TemplateView
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib import messages
@@ -11,7 +11,6 @@ from typing import List, Dict, Any
 from .models import Basket
 
 from .forms import BasketForm
-from django.contrib.auth.models import User
 
 # Create your views here.
 
