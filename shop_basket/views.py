@@ -10,7 +10,7 @@ from typing import List, Dict, Any
 
 from .models import Basket
 
-from .forms import BasketForm
+from .forms import OrderForm
 
 # Create your views here.
 
@@ -23,26 +23,25 @@ class BasketPage(LoginRequiredMixin, TemplateView):
     template_name = 'basket_page.html'
 
     def get(self, request):
-        form = BasketForm()
+        form = OrderForm()
         return render(request, 'basket_page.html', {'form': form})
 
 
-class BasketView(LoginRequiredMixin, TemplateView):
+class OrderView(LoginRequiredMixin, TemplateView):
     template_name = 'basket_page.html'
     extra_context = {}
 
     def get(self, request, *args, **kwargs):
-        self.extra_context['form'] = BasketForm()
+        form = OrderForm()
+        self.extra_context['form'] = form
 
-        return super(BasketView, self).get(request)
+        return super(OrderView, self).get(request)
 
     def post(self, request, pk: int):
-        form = BasketForm(request.POST)
+        form = OrderForm(request.POST)
 
-        if form.is_valid():
-            user = form.save(commit=False)
-            user.user = request.user
-            user.save()
+        if not form.errors:
+            form.save()
             return redirect(f'/statistic_page/{request.user.id}')
         else:
             messages.error(request, form.errors)

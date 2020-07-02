@@ -14,23 +14,19 @@
         {% for field in form %}
             <div class="fieldWrapper">
                 {{ field.errors }}
-                {{ field.label_tag }} -- {{ field }}
-                {% if field.help_text %}
-                    <p class="help">{{ field.help_text|safe }}</p>
+                {% if field.name == 'user' %}
+                    <select name="user" required="" id="id_user">
+                        <option value="{{ user.id }}" selected="">{{ user }}</option>
+                    </select>
+                {% else %}
+                    {{ field.label_tag }} -- {{ field }}
                 {% endif %}
+
             </div>
         {% endfor %}
 
-        {% if form.subject.errors %}
-            <ol>
-            {% for error in form.subject.errors %}
-                <li><strong>{{ error|escape }}</strong></li>
-            {% endfor %}
-            </ol>
-        {% endif %}
-
         {% if messages %}
-            <ul class="messages">
+            <ul class="messages">22
                 {% for message in messages %}
                     <div class="" role="alert">
                         {{ message }}

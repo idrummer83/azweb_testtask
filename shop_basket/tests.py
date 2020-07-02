@@ -6,7 +6,7 @@ from django.contrib.auth.models import User
 from shop_basket.models import Basket
 
 
-class BasketViewTest(TestCase):
+class OrderViewTest(TestCase):
 
     @classmethod
     def setUpTestData(cls):
