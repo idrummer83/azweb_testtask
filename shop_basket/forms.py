@@ -1,5 +1,5 @@
 from django import forms
-from .models import Basket
+from .models import Basket, validate_title, validate_price
 
 
 class OrderForm(forms.ModelForm):
@@ -9,15 +9,9 @@ class OrderForm(forms.ModelForm):
         fields = ('user', 'title', 'price')
 
     def clean_title(self):
-        data = self.cleaned_data['title']
-        if len(data) <= 2:
-            raise forms.ValidationError("Too short title for order!")
-        else:
-            return data
+        if not validate_title(self.cleaned_data['title']):
+            return self.cleaned_data['title']
 
     def clean_price(self):
-        data = self.cleaned_data['price']
-        if data <= 1:
-            raise forms.ValidationError("Number must be positive and more then 1!")
-        else:
-            return data
+        if not validate_price(self.cleaned_data['price']):
+            return self.cleaned_data['price']

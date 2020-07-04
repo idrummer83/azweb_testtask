@@ -15,7 +15,7 @@
             <div class="fieldWrapper">
                 {{ field.errors }}
                 {% if field.name == 'user' %}
-                    <select name="user" required="" id="id_user">
+                    <select hidden name="user" required="" id="id_user">
                         <option value="{{ user.id }}" selected="">{{ user }}</option>
                     </select>
                 {% else %}
@@ -26,7 +26,7 @@
         {% endfor %}
 
         {% if messages %}
-            <ul class="messages">22
+            <ul class="messages">
                 {% for message in messages %}
                     <div class="" role="alert">
                         {{ message }}
